@@ -11,6 +11,7 @@ There are 4 main databases of this system.
 There are another csv files each corresponding to the cars rented by some customer or employee.
 
 To run the system, type the following commands in the console:
+
 g++ main.cpp -o main
 .\main
 
