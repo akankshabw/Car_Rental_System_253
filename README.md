@@ -8,7 +8,9 @@ There are 4 main databases of this system.
 3. `Employee.csv` stores the details of each employee.One row stores details of one customer[Id,Name,password,Fine Due,Record,Mobile,Status].
 4. `Manager.csv` stores the details of manager. One row stores details of one customer[Id,Name,password,Mobile].
 
-There are another csv files each corresponding to the cars rented by some customer or employee.
+There are two other folders.
+1.`Each_Cus_DBs` stores the csv files corresponding to some customer which has the list and details of the cars rented by them.
+2.`Each_Emp_DBs` stores the csv files corresponding to some employee which has the list and details of the cars rented by them.
 
 To run the system, type the following commands in the console:
 
