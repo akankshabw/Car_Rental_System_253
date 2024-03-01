@@ -185,22 +185,21 @@ class user{
 
 
 void user::Update_Profile(int role){
-    system("cls");
     string filename;
     if(role==1) filename="Customer.csv";
     else filename="Employee.csv";
 
     cout<<"What do you want to update?\n1.Name\t\t2.Password\t\t3.Mobile No\n";
-    int b;
+    string b;
     cin>>b;
     string new_data;
-    if(b==1){
+    if(b=="1"){
         cout<<"Enter you new Name:\n";
         string name;
         cin>>name;
         new_data=to_string(Id)+","+name+","+password+","+to_string(Fine_Due)+","+to_string(record)+","+mobile+",Existing";
     }
-    else if(b==2){
+    else if(b=="2"){
         cout<<"Enter you new password(minimum 4 letters):\n";
         string pass;
         cin>>pass;
@@ -210,7 +209,7 @@ void user::Update_Profile(int role){
         }
         new_data=to_string(Id)+","+Name+","+pass+","+to_string(Fine_Due)+","+to_string(record)+","+mobile+",Existing";
     }
-    else if(b==3){
+    else if(b=="3"){
         cout<<"Enter you new mobile number(of 10 digits):\n";
         string pass;
         cin>>pass;
@@ -230,7 +229,6 @@ void user::Update_Profile(int role){
 }
 
 void user::Available_cars(){
-    system("cls");
     cout<<"------------------------AVAILABLE CARS-------------------------\n\n";
     ifstream file("cars.csv"); // Open the CSV file
     if (!file.is_open()) {
@@ -242,7 +240,9 @@ void user::Available_cars(){
         vector<string> parts = split(line, ','); 
         if(parts[5]=="In_Use")
         {
-            cout<<"Id: "<<parts[0]<<"\nModel Name: "<<parts[1]<<"\nCondition: "<<parts[2]<<"\nDue Date: "<<parts[3]<<"\nRental Price per day: "<<parts[4];
+            cout<<"Id: "<<parts[0]<<"\nModel Name: "<<parts[1]<<"\nCondition: "<<parts[2]<<"\nRental Price per day: "<<parts[4];
+            if(parts[3]=="NA") cout<<"\nAvailability: Yes";
+            else cout<<"\nAvailability: No";
             cout << "\n\n\t\t\t*********\t\t\t\n";
         }
     }
@@ -252,7 +252,6 @@ void user::Available_cars(){
 
 
 void user::Pay_dues(int role){
-    system("cls");
     cout<<"------------------------PAY DUES-------------------------\n\n";
     if(Fine_Due==0){
         cout<<"You don't have dues :)\n";
@@ -262,7 +261,7 @@ void user::Pay_dues(int role){
     cout<<"Enter the amount you want to clear:\n";
     string sum;
     cin>>sum;
-    if(is_number(sum)==0) {
+    if(is_number(sum)==0 || stoi(sum)<0) {
         cout<<"Not a valid number.\n";
         return Pay_dues(role);
     }
@@ -280,7 +279,6 @@ void user::Pay_dues(int role){
 
 
 void user::Rented_Cars(int role){
-    system("cls");
     cout<<"------------------------RENTED CARS-------------------------\n\n";
     string filename;
     if(role==1) filename="Each_Cus_DBs/"+this->Name+".csv";
@@ -295,7 +293,7 @@ void user::Rented_Cars(int role){
     while (getline(file, line)) {
     vector<string> parts = split(line, ','); 
     cout<<"Id: "<<parts[0]<<"\nModel Name: "<<parts[1]<<"\nCondition: "<<parts[2]<<"\nStart Date: "<<parts[3]<<"\nEnd Date: "<<parts[4]<<"\nRental Price per day: "<<parts[5]<<"\nStatus: "<<parts[6];
-            cout << "\n\n\t\t\t*********\t\t\t\n";
+    cout << "\n\n\t\t\t*********\t\t\t\n";
     cout << endl;
     }
     file.close();
@@ -305,25 +303,24 @@ void user::Rented_Cars(int role){
 
 
 void user::Return_Car(int role){
-    system("cls");
     cout<<"------------------------RETURN CAR-------------------------\n\n";
     cout<<"Enter the car Id:\n";
     string id;
     cin>>id;
     if(is_number(id)==0) {
-        cout<<"Not a valid number.\n";
+        cout<<"The Id should consist of only numbers.\n";
         return Return_Car(role);
     }
     int ret_id=stoi(id);
-    cout<<"Enter the today's date(YYYY--MM-DD):\n";
+    cout<<"Enter the following details of today's date\n";
     string s1;
     s1=take_date();
 
     cout<<"What is the condition of car currently?"<<endl;
     cout<<"1.Good\t\t\t2.Damaged"<<endl;
-    int s;
+    string s;
     cin>>s;
-    if(s!=1 && s!=2) {
+    if(s!="1" && s!="2") {
         cout<<"Not a valid option.\n";
         return Return_Car(role);
     }
@@ -353,9 +350,9 @@ void user::Return_Car(int role){
             int con;
             if(parts[2].compare("Good")==0) con=1;
             else con=2;
-            if(s-con!=0){
-                if(s==2){
-                cout<<"As you have caused damage to the car. You will be fined Rs.5000.\n";
+            if(stoi(s)-con!=0){
+                if(stoi(s)==2){
+                    cout<<"As you have caused damage to the car. You will be fined Rs.5000.\n";
                     Fine_Due+=5000;
                     record -=2;
                     parts[2]="Damaged";
@@ -390,7 +387,6 @@ void user::Return_Car(int role){
 }
 
 void user::Profile(int role){
-    system("cls");
     cout<<"\n\n----------------------------------YOUR PROFILE-----------------------------------\n";
     string filename;
     if(role==1) filename="Customer.csv";
@@ -419,23 +415,28 @@ void user::Profile(int role){
 
 void user::book_car(int role)
 {
-    system("cls");
     cout<<"\n\n------------------------RENT A CAR-------------------------\n\n";
-    cout<<"Do you want to see the list of available cars?\n1.Yes\t\t\t2.No\n";
-    int a;
+    cout<<"Do you want to see the list of available cars?\n1.Yes\t\t\t2.No\t\t\t3.Exit\n";
+    string a;
     cin>>a;
-    if(a==1) Available_cars();
-    else if(a!=2) {
+    if(a=="1") Available_cars();
+    else if(a=="3"){
+        return;
+    }
+    else if(a!="2") {
         cout<<"Not a valid option.\n";
         return book_car(role);
     }
-    cout<<"Enter the car model you want to rent\n";
+    cout<<"Enter the car id you want to rent\n";
     string s;
     cin>>s;
-    cout<<"Enter today's date(YYYY-MM-DD)\n";
+    if(!is_number(s)){
+        cout<<"The Id should be consist of numbers only.\n";
+    }
+    cout<<"Enter the following details of today's date i.e., the start date\n";
     string s1;
     s1=take_date();
-    cout<<"Enter end date(YYYY-MM-DD)\n";
+    cout<<"Enter the following details of end date\n";
     string s2;
     s2=take_date();
 
@@ -462,7 +463,7 @@ void user::book_car(int role)
     while (getline(file, line)) {
         vector<string> parts = split(line, ','); 
         
-        if(parts[1].compare(s)==0){
+        if(parts[0].compare(s)==0){
             if (parts[3].compare("NA") == 0) {
                 id=parts[0];
                 price=parts[4];
@@ -479,6 +480,10 @@ void user::book_car(int role)
                 cout<<"2.You don't want to rent the car.\n";
                 int cfm;
                 cin>>cfm;
+                if(cfm!=1 && cfm!=2) {
+                    cout<<"Not a valid option.\n";
+                    return book_car(role);
+                }
                 if(cfm==1){
                     if(record>0){
                     flag=1;
@@ -496,7 +501,6 @@ void user::book_car(int role)
                         flag=2;
                         cout<<"Sorry....you don't have a good record enough to rent a car :(((\n";
                     }
-
                 }
                 else{
                     flag=2;
@@ -536,10 +540,10 @@ class customer:public user{
         if(this->Fine_Due>50000) {
             cout<<"Sorry...your fine due exceeds the upper bound we had set. So, you need to pay the dues to avail our facilities.\n";
             cout<<"Choose one of the following options:\n1.Pay dues\t\t\t2.Exit\n";
-            int a;
+            string a;
             cin>>a;
-            if(a==1) Pay_dues(1);
-            else if(a==2) return ;
+            if(a=="1") Pay_dues(1);
+            else if(a=="2") return ;
             else {
                 cout<<"Not a valid option.\n";
                 return Display_Menu();
@@ -555,8 +559,13 @@ class customer:public user{
         cout<<"6.Show Profile."<<endl;
         cout<<"7.Update Profile."<<endl;
         cout<<"8.Logout."<<endl;
-        int a;
-        cin>>a;
+        string s;
+        cin>>s;
+        if(!is_number(s)){
+            cout<<"It should be a number.\n";
+            return Display_Menu();
+        }
+        int a = stoi(s);
         switch(a){
             case 1:
                 Available_cars();
@@ -586,13 +595,13 @@ class customer:public user{
                 cout<<"Not a valid option.\n";
         }
         cout<<"Do you want to exit from the application?\n1.Yes\t\t\t2.No\n";
-        int a1;
+        string a1;
         cin>>a1;
-        if(a1==1){
+        if(a1=="1"){
             cout<<"Thank you for using our services !!\n";
             return ;
         }
-        else if(a1==2){
+        else if(a1=="2"){
             system("cls");
             Display_Menu();
         }
@@ -623,8 +632,13 @@ class employ:public user{
             cout<<"6.Show Profile."<<endl;
             cout<<"7.Update my profile."<<endl;
             cout<<"8.Logout."<<endl;
-            int a;
-            cin>>a;
+            string s;
+            cin>>s;
+            if(!is_number(s)){
+                cout<<"It should be a number.\n";
+                return Display_Menu();
+            }
+            int a = stoi(s);
             switch(a){
                 case 1:
                     Available_cars();
@@ -654,13 +668,13 @@ class employ:public user{
                     cout<<"Not a valid option.\n";
             }
             cout<<"Do you want to exit from the application?\n1.Yes\t\t\t2.No\n";
-            int a1;
+            string a1;
             cin>>a1;
-            if(a1==1){
+            if(a1=="1"){
                 cout<<"Thank you for using our services !!\n";
                 return ;
             }
-            else if(a1==2){
+            else if(a1=="2"){
                 system("cls");
                 Display_Menu();
             }
@@ -685,23 +699,22 @@ public:
     string password;
     string mobile;
     void Add(){
-        system("cls");
         cout<<"\n\n---------------------------------------ADD------------------------------\n";
         cout<<"What do you want to add?\n1.Car\t\t2.Customer\t\t3.Employee\n";
-        int a;
+        string a;
         cin>>a;
         string filename;
-        if(a==1){
+        if(a=="1"){
             filename="cars.csv";
             fstream file;
             string model,condition,price;
             cout<<"Enter the model name of the car:\n";
             cin>>model;
             cout<<"Enter the current condition of the car:\n1.Good\t\t\t\t2.Damaged\n";
-            int a;
-            cin>>a;
-            if(a==1) condition="Good";
-            else if(a==2) condition="Damaged";
+            string a1;
+            cin>>a1;
+            if(a1=="1") condition="Good";
+            else if(a1=="2") condition="Damaged";
             else {cout<<"Not a valid option\n";return Add();}
             cout<<"Enter the per day rental price of the car:\n";
             cin>>price;
@@ -715,8 +728,8 @@ public:
             file.close();
             cout<<"This car is added to the system!!"<<endl;
         }
-        else if(a==2 ||a==3){
-            if(a==2) filename="Customer.csv";
+        else if(a=="2" ||a=="3"){
+            if(a=="2") filename="Customer.csv";
             else filename="Employee.csv";
             fstream file;
             string name,password,mobile;
@@ -738,14 +751,13 @@ public:
 
 
     void Delete(){
-        system("cls");
         cout<<"\n\n---------------------------------------DELETE------------------------------\n";
         cout<<"What do you want to delete?\n1.Car\t\t2.Customer\t\t3.Employee\n";
-        int a;
+        string a;
         cin>>a;
         string filename;
         int flag=0;
-        if(a==1){
+        if(a=="1"){
             filename="cars.csv";
             cout<<"Enter the car Id which you want to delete:\n";
             string id;
@@ -773,8 +785,8 @@ public:
             update_record(filename,id,data);
             cout<<"This car is deleted!!!\n";
         }
-        else if(a==2 ||a==3){
-            if(a==2) filename="Customer.csv";
+        else if(a=="2" ||a=="3"){
+            if(a=="2") filename="Customer.csv";
             else filename="Employee.csv";
             cout<<"Enter the person Id whom you want to delete:\n";
             string id;
@@ -795,12 +807,12 @@ public:
                 if(parts[0]==id ){
                     cout<<"You are trying to delete "<<parts[1]<<". He has fine dues of Rs."<<parts[3]<<"\n";
                     cout<<"Are you sure you want to delete him?\n1.Yes\t\t\t2.No\n";
-                    int b;
+                    string b;
                     cin>>b;
-                    if(b==1) {
+                    if(b=="1") {
                         flag=1;
                     }
-                    else if(b==2) cout<<"------------------------Thank you!----------------------\n";
+                    else if(b=="2") cout<<"------------------------Thank you!----------------------\n";
                     else cout<<"Not a valid option.\n";
                     break;
                 }
@@ -813,7 +825,7 @@ public:
             }
         }
         else {cout<<"Not a valid option.\n";return Delete();}
-        if(flag==0 && a<=3 && a>=1){
+        if(flag==0 && stoi(a)<=3 && stoi(a)>=1){
             cout<<"Invalid Id\n";
         }
         cout<<"--------------------------------------------------------------------------\n";
@@ -821,14 +833,13 @@ public:
 
 
     void Update(){
-        system("cls");
         cout<<"\n\n---------------------------------------UPDATE------------------------------\n";
         cout<<"What do you want to update?\n1.Car\t\t2.Customer\t\t3.Employee\n";
-        int a;
+        string a;
         cin>>a;
         string filename;
         int flag=0;
-        if(a==1){
+        if(a=="1"){
             cout<<"Enter the id of the car you want to update:\n";
             string s;
             cin>>s;
@@ -855,25 +866,25 @@ public:
             file.close();
             if(flag==0) {cout<<"You entered an invalid car id.\n";return Update();}
             cout<<"Which attribute of the car do you want to update?\n1.Model\t\t2.Condition\t\t3.Rental price per day\n";
-            int b;
+            string b;
             cin>>b;
             int change=0;
-            if(b==1) {
+            if(b=="1") {
                 cout<<"Enter the new model name for this car.\n";
                 string s1;
                 cin>>s1;
                 change=1;
                 parts[1]=s1;
             }
-            else if(b==2){
+            else if(b=="2"){
                 cout<<"Enter the new condition of this car.\n1.Good\t\t\t2.Damaged\n";
-                int s1;
+                string s1;
                 cin>>s1;
-                if(s1==1) {parts[2]="Good";change=1;}
-                else if(s1==2) {parts[2]="Damaged";change=1;}
+                if(s1=="1") {parts[2]="Good";change=1;}
+                else if(s1=="2") {parts[2]="Damaged";change=1;}
                 else {cout<<"Not a valid option.\n";return Update();}
             }
-            else if(b==3){
+            else if(b=="3"){
                 cout<<"Enter the new rental price per day for this car.\n";
                 string s1;
                 cin>>s1;
@@ -887,8 +898,8 @@ public:
                 update_record(filename,s,new_data);
             }
         }
-        else if(a==2 || a==3){
-            if(a==2) filename="Customer.csv";
+        else if(a=="2" || a=="3"){
+            if(a=="2") filename="Customer.csv";
             else filename="Employee.csv";
             cout<<"Enter the id of the person whose data you want to update:\n";
             string s;
@@ -915,24 +926,28 @@ public:
             file.close();
             if(flag==0) {cout<<"You entered an invalid id number.\n";return Update();}
             cout<<"Which attribute of "<<parts[1]<<" do you want to update?\n1.Name\t2.Password\t3.Fine_Due\t4.Record\n";
-            int b;
+            string b;
             cin>>b;
             int change=0;
-            if(b==1) {
+            if(b=="1") {
                 cout<<"Enter the new name for this person.\n";
                 string s1;
                 cin>>s1;
                 change=1;
                 parts[1]=s1;
             }
-            else if(b==2){
-                cout<<"Enter the new password for this person.\n";
+            else if(b=="2"){
+                cout<<"Enter the new password for this person(minimum 4 letters).\n";
                 string s2;
                 cin>>s2;
+                if(s2.size()<4){
+                    cout<<"Length should be gretaer than or equal to 4.\n";
+                    return Update();
+                }
                 change=1;
                 parts[2]=s2;
             }
-            else if(b==3){
+            else if(b=="3"){
                 cout<<"Enter the new fine dues for this person.\n";
                 string s1;
                 cin>>s1;
@@ -943,7 +958,7 @@ public:
                 change=1;
                 parts[3]=s1;
             }
-            else if(b==4){
+            else if(b=="4"){
                 cout<<"Enter the new record number for this person.\n";
                 string s1;
                 cin>>s1;
@@ -969,7 +984,6 @@ public:
 
 
     void Available_Cars(){
-        system("cls");
         cout<<"\n\n------------------------AVAILABLE CARS-------------------------\n\n";
         ifstream file("cars.csv"); // Open the CSV file
         if (!file.is_open()) {
@@ -997,7 +1011,6 @@ public:
 
 
     void Current_Data(int role){
-        system("cls");
         string filename;
         string name;
         if(role==1) {filename="Customer.csv";name="CUSTOMERS";}
@@ -1018,7 +1031,7 @@ public:
             vector<string> parts = split(line, ','); 
             if(parts[6]=="Existing")
             {
-                cout<<"Id: "<<parts[0]<<"  |  Name: "<<parts[1]<<"  |  password: "<<parts[2]<<"  |  Fine Due: "<<parts[3]<<"  |  Record: "<<parts[4]<<endl;
+                cout<<"Id: "<<parts[0]<<"  |  Name: "<<parts[1]<<"  |  password: "<<parts[2]<<"  |  Fine Due: "<<parts[3]<<"  |  Record: "<<parts[4]<<" | Mobile No: "<<parts[5]<<endl;
             }
         }
         file.close();
@@ -1027,7 +1040,6 @@ public:
 
 
     void Update_Profile(){
-        system("cls");
         cout<<"\n\n----------------------------------YOUR PROFILE-----------------------------------\n";
         string filename="Manager.csv";
         ifstream file(filename);
@@ -1049,20 +1061,20 @@ public:
         file.close();
 
         cout<<"\n\nDo you want to update your profile?\n1.Yes\t\t\t2.No\n";
-        int a ;
+        string a;
         cin>>a;
-        if(a==1){
+        if(a=="1"){
             cout<<"What do you want to update?\n1.Name\t\t2.Password\t\t3.Mobile No.\n";
-            int b;
+            string b;
             cin>>b;
             string new_data;
-            if(b==1){
+            if(b=="1"){
                 cout<<"Enter you new Name.\n";
                 string name;
                 cin>>name;
                 new_data=Id+","+name+","+password+","+mobile;
             }
-            else if(b==2){
+            else if(b=="2"){
                 cout<<"Enter you new password(minimum 4 letters).\n";
                 string pass;
                 cin>>pass;
@@ -1072,7 +1084,7 @@ public:
                 }
                 new_data=Id+","+Name+","+pass+","+mobile;
             }
-            else if(b==3){
+            else if(b=="3"){
                 cout<<"Enter you new mobile number(of 10 digits).\n";
                 string pass;
                 cin>>pass;
@@ -1089,15 +1101,16 @@ public:
             update_record(filename,to_string(Id),new_data);
             cout<<"Your profile is updated :))\n";
         }
-        else if(a!=2){
+        else if(a!="2"){
             cout<<"Invalid option.\n";
             return Update_Profile();
         }
         cout<<"\n------------------------------------------------------------------------\n";
     }
 
+
     void Display_Menu(){
-        cout<<"Please choose one of the below option number."<<endl;
+        cout<<"\n\nPlease choose one of the below option number."<<endl;
         cout<<"1.Show the list of available cars."<<endl;
         cout<<"2.Add a car/customer/employee."<<endl;
         cout<<"3.Delete a car/customer/employee."<<endl;
@@ -1106,8 +1119,13 @@ public:
         cout<<"6.Show the list of all employees.\n";
         cout<<"7.Show/Update my profile.\n";
         cout<<"8.Logout."<<endl;
-        int a;
-        cin>>a;
+        string s;
+        cin>>s;
+        if(!is_number(s)){
+            cout<<"Not a valid option.\n";
+            Display_Menu();
+        }
+        int a=stoi(s);
         switch(a){
             case 1:
                 Available_Cars();
@@ -1136,10 +1154,16 @@ public:
                 return;
             default:
                 cout<<"Not a valid option.\n";
+                Display_Menu();
         }
         cout<<"Do you want to exit from the application?\n1.Yes\t\t\t2.No\n";
-        int a1;
-        cin>>a1;
+        string s1;
+        cin>>s1;
+        if(!is_number(s1)){
+            cout<<"Not a valid option.\n";
+            return Display_Menu();
+        }
+        int a1= stoi(s1);
         if(a1==1){
             cout<<"Thank you for using our services !!\n";
             return ;
@@ -1161,16 +1185,26 @@ public:
 
 void Login()
 {
-    system("cls");
     int count=0;
     cout<<"\n\n------------------------LOGIN-------------------------\n\n";
     string new_name,new_password;
-    int a;
-    cout<<"Choose your role among the following:\n1.Customer\t\t2.Employee\t\t3.Manager\n";
-    cin>>a;
-    cout<<"Enter your name:"<<endl;
+    string s;
+    cout<<"Choose your role among the following:\n1.Customer\t\t2.Employee\t\t3.Manager\t\t4.Exit\n";
+    cin>>s;
+    if( !is_number(s) || stoi(s)>4){
+        cout<<"Not a valid option.\n";
+        return Login();
+    }
+    else if(stoi(s)==4){
+        return;
+    }
+
+    int  a = stoi(s);
+    cout<<"Enter your name:(First Name)"<<endl;
     cin>>new_name;
+
     cout<<"Enter your password:(single word)"<<endl;
+
     cin>>new_password;
 
 
@@ -1254,7 +1288,9 @@ void Login()
             New_manager.Display_Menu();
         }
     }
-    else {cout<<"You entered an invalid number for your role.\n";return Login();}
+    else if(a==4){
+        return;
+    }
     
     if(count==0 && a<=3 && a>=1) {cout<<"You entered wrong data!!"<<endl;return Login();}
     
@@ -1265,22 +1301,21 @@ void Login()
 
 void Register()
 {
-    system("cls");
     string Name,password;
     cout<<"\n\n------------------------REGISTER-------------------------\n\n";
-    cout<<"Enter your name:"<<endl;
+    cout<<"Enter your name(First Name):"<<endl;
     cin>>Name;
     cout<<"Enter a password(of minimum 4 letters and should consists of single word):"<<endl;
     cin>>password;
+    if(password.size()<4){
+        cout<<"Length is less than 4."<<endl;
+        return Register();
+    }
     string mobile;
     cout<<"Enter your 10-digit mobile number:"<<endl;
     cin>>mobile;
     if(!is_number(mobile) || mobile.size()!=10){
         cout<<"Not a valid number\n";
-        return Register();
-    }
-    if(password.size()<4){
-        cout<<"Length is less than 4."<<endl;
         return Register();
     }
     else{
@@ -1329,17 +1364,17 @@ int main()
     cout<<"--------------------------------------------------------------------------------------------\n";
     cout<<"Choose one of the two options."<<endl;
     cout<<"1.Login \t 2.Register(Only if you are a new customer) \t 3.Exit"<<endl;
-    int a;
+    string a;
     cin>>a;
-    if(a==1){
+    if(a=="1"){
         Login();
-        return 0;
+        return main();
     }
-    else if(a==2){
+    else if(a=="2"){
         Register();
         return main();
     }
-    else if(a==3) return 0;
+    else if(a=="3") return 0;
 
     else {
         cout<<"Invalid option.\n";

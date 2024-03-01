@@ -5,5 +5,9 @@ Id,Name,Password,Fine_Due,Record,Mobile,Status
 4,akanksha,6789,1500,11,8798858684,Existing
 5,shruti,sabw,0,0,8685848987,Existing
 6,ak,12345,0,10,9022371923,Existing
-7,Shri,april,0,10,8785829563,Existing
+7,Shri,april,22500,9,8785829563,Existing
 8,pagal,gjdks,0,10,5462358966,Existing
+9,Aditi,56777,0,10,6768767687,Existing
+10,suhana,poiu,0,10,6206904645,Existing
+11,Balaji,098756,0,10,9404064005,Existing
+12,Divyanshi,cutie,0,10,9876543210,Deleted
