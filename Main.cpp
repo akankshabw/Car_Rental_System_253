@@ -175,7 +175,7 @@ class user{
         int Fine_Due;
         int record;
         void Available_cars();
-        void Rented_Cars();
+        void Rented_Cars(int role);
         void Pay_dues(int role);
         void Return_Car(int role);
         void book_car(int role);
@@ -279,10 +279,13 @@ void user::Pay_dues(int role){
 }
 
 
-void user::Rented_Cars(){
+void user::Rented_Cars(int role){
     system("cls");
     cout<<"------------------------RENTED CARS-------------------------\n\n";
-    ifstream file(this->Name+".csv"); 
+    string filename;
+    if(role==1) filename="Each_Cus_DBs/"+this->Name+".csv";
+    else filename="Each_Emp_DBs/"+this->Name+".csv";
+    ifstream file(filename); 
     if (!file.is_open()) {
     cerr << "You have not rented any cars yet." << endl;
     return ;
@@ -324,7 +327,9 @@ void user::Return_Car(int role){
         cout<<"Not a valid option.\n";
         return Return_Car(role);
     }
-    string filename=this->Name+".csv";
+    string filename;
+    if(role==1) filename="Each_Cus_DBs/"+this->Name+".csv";
+    else filename="Each_Emp_DBs/"+this->Name+".csv";
     ifstream file(filename);
     if (!file.is_open()) {
     cerr << "Error: You have not rented any car yet." << endl;
@@ -363,7 +368,9 @@ void user::Return_Car(int role){
             }
             string new_data = parts[0]+","+parts[1]+","+parts[2]+","+parts[3]+","+parts[4]+","+parts[5]+",Returned";
             file.close();
-            string filename=this->Name+".csv";
+            string filename;
+            if(role==1) filename="Each_Cus_DBs/"+this->Name+".csv";
+            else filename="Each_Emp_DBs/"+this->Name+".csv";
             flag=1;
             cout<<"You successfully returned the car."<<endl;
             update_record(filename,parts[0],new_data);
@@ -478,7 +485,9 @@ void user::book_car(int role)
                     new_data = parts[0]+","+parts[1]+","+parts[2]+","+s2+","+parts[4]+",In_Use"+","+this->Name;
                     change=parts[0];
                     fstream file;
-                    string fname=this->Name+".csv";
+                    string fname;
+                    if(role==1) fname="Each_Cus_DBs/"+this->Name+".csv";
+                    else fname="Each_Emp_DBs/"+this->Name+".csv";
                     file.open(fname, ios::out | ios::app);
                     file <<parts[0]<<","<< parts[1] << ","<<parts[2] <<","<<s1<<","<<s2<<","<<stoi(parts[4])<<","<<"Rented"<<"\n";
                     file.close();
@@ -553,7 +562,7 @@ class customer:public user{
                 Available_cars();
                 break;
             case 2:
-                Rented_Cars();
+                Rented_Cars(1);
                 break;
             case 3:
                 book_car(1);
@@ -621,7 +630,7 @@ class employ:public user{
                     Available_cars();
                     break;
                 case 2:
-                    Rented_Cars();
+                    Rented_Cars(2);
                     break;
                 case 3:
                     book_car(2);
