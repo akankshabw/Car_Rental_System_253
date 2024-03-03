@@ -6,6 +6,7 @@
 #include <fstream> 
 #include <sstream> 
 #include <stdlib.h>
+#include <cstdio>
 using namespace std;
 
 
@@ -131,26 +132,26 @@ void update_record(const string& filename, const string& record_id, const string
 
 int daysBetweenDates(string date1, string date2)
 {
-    stringstream ss(date1 + "-" + date2);
-    int year, month, day;
-    char hyphen;
- 
-    // Parse the first date into seconds
-    ss >> year >> hyphen >> month >> hyphen >> day;
-    struct tm starttm = { 0, 0, 0, day,
-                        month - 1, year - 1900 };
-    time_t start = mktime(&starttm);
- 
-    // Parse the second date into seconds
-    ss >> hyphen >> year >> hyphen
-        >> month >> hyphen >> day;
-    struct tm endtm = { 0, 0, 0, day,
-                        month - 1, year - 1900 };
-    time_t end = mktime(&endtm);
- 
-    // Find out the difference and divide it
-    // by 86400 to get the number of days
-    return (end - start) / 86400;
+	stringstream ss(date1 + "-" + date2);
+	int year, month, day;
+	char hyphen;
+
+	// Parse the first date into seconds
+	ss >> year >> hyphen >> month >> hyphen >> day;
+	struct tm starttm = { 0, 0, 0, day,
+						month - 1, year - 1900 };
+	time_t start = mktime(&starttm);
+
+	// Parse the second date into seconds
+	ss >> hyphen >> year >> hyphen
+		>> month >> hyphen >> day;
+	struct tm endtm = { 0, 0, 0, day,
+						month - 1, year - 1900 };
+	time_t end = mktime(&endtm);
+
+	// Find out the difference and divide it
+	// by 86400 to get the number of days
+	return (end - start) / 86400;
 }
 
 vector<string> split(const string &s, char delimiter) {
@@ -198,6 +199,9 @@ void user::Update_Profile(int role){
         string name;
         cin>>name;
         new_data=to_string(Id)+","+name+","+password+","+to_string(Fine_Due)+","+to_string(record)+","+mobile+",Existing";
+        string old="Each_Cus_DBs/"+this->Name+".csv";
+        string newname="Each_Cus_DBs/"+name+".csv";
+        rename(old.c_str(),newname.c_str());
     }
     else if(b=="2"){
         cout<<"Enter you new password(minimum 4 letters):\n";
@@ -432,6 +436,7 @@ void user::book_car(int role)
     cin>>s;
     if(!is_number(s)){
         cout<<"The Id should be consist of numbers only.\n";
+        return book_car(role);
     }
     cout<<"Enter the following details of today's date i.e., the start date\n";
     string s1;
@@ -439,7 +444,6 @@ void user::book_car(int role)
     cout<<"Enter the following details of end date\n";
     string s2;
     s2=take_date();
-
     if(daysBetweenDates(s1,s2)<0){
         cout<<"Your dates are not correct!\n";
         return book_car(role);
@@ -464,7 +468,7 @@ void user::book_car(int role)
         vector<string> parts = split(line, ','); 
         
         if(parts[0].compare(s)==0){
-            if (parts[3].compare("NA") == 0) {
+            if (parts[3].compare("NA") == 0 && parts[5]!="Deleted") {
                 id=parts[0];
                 price=parts[4];
                 cond=parts[2];
@@ -522,7 +526,7 @@ void user::book_car(int role)
         cout<<"Rental Price\t\t\tRs."<<price<<"\n";
         cout<<"Start Date  \t\t\t"<<s1<<"\n";
         cout<<"End Date    \t\t\t"<<s2<<"\n";
-        cout<<"Total Price  \t\t\tRs."<<daysBetweenDates(s1,s2)*stoi(price)<<"\n\n";
+        cout<<"Total Price  \t\t\tRs."<<(daysBetweenDates(s1,s2)+1)*stoi(price)<<"\n\n";
         cout<<"Please remember this car id. It will be required while returning the car.\n";
         update_record(filename,change,new_data);
     }
@@ -718,7 +722,7 @@ public:
             else {cout<<"Not a valid option\n";return Add();}
             cout<<"Enter the per day rental price of the car:\n";
             cin>>price;
-            if(is_number(price)==0){
+            if(is_number(price)==0 || stoi(price)<=0){
                 cout<<"Not a valid number.\n";
                 return Add();
             }
@@ -737,8 +741,16 @@ public:
             cin>>name;
             cout<<"Enter a password for him(min 4 letters and should consist of a single word):\n";
             cin>>password;
+            if(password.size()<4){
+                cout<<"Length is less than 4."<<endl;
+                return Add();
+            }
             cout<<"Enter his mobile number: \n";
             cin>>mobile; 
+            if(!is_number(mobile) || mobile.size()!=10){
+                cout<<"Not a valid number\n";
+                return Add();
+            }
             file.open(filename,ios::out | ios::app);
             int Id=get_number_of_records(filename);
             file<<Id<<","<<name << ","<<password<<","<<"0"<<",10,"<<mobile<<",Existing\n";
@@ -748,7 +760,6 @@ public:
         else cout<<"Not a valid option.\n";
         cout<<"-----------------------------------------------------------------\n";
     }
-
 
     void Delete(){
         cout<<"\n\n---------------------------------------DELETE------------------------------\n";
@@ -762,6 +773,10 @@ public:
             cout<<"Enter the car Id which you want to delete:\n";
             string id;
             cin>>id;
+            if(is_number(id)==0){
+                cout<<"The id should consist of only numbers.\n";
+                return Update();
+            }
             ifstream file(filename); 
             if (!file.is_open()) {
             cerr << "Error: Something is wrong. Please try again." << endl;
@@ -804,7 +819,7 @@ public:
             vector<string> parts;
             while (getline(file, line)) {
                 parts = split(line, ','); 
-                if(parts[0]==id ){
+                if(parts[0]==id && parts[6]=="Existing"){
                     cout<<"You are trying to delete "<<parts[1]<<". He has fine dues of Rs."<<parts[3]<<"\n";
                     cout<<"Are you sure you want to delete him?\n1.Yes\t\t\t2.No\n";
                     string b;
@@ -862,6 +877,10 @@ public:
                     flag=1;
                     break;
                 }
+                else if(parts[0]==s && parts[5]=="In_Use" ){
+                    cout<<"This car is currently rented. You can only update attributes of cars that are not rented.\n";
+                    return Update();
+                }
             }
             file.close();
             if(flag==0) {cout<<"You entered an invalid car id.\n";return Update();}
@@ -916,8 +935,8 @@ public:
             string line;
             vector<string> parts;
             while (getline(file, line)) {
-                parts = split(line, ','); 
-                if(parts[0]==s && parts[5]=="Existing"){
+                parts = split(line, ',');
+                if(parts[0]==s && parts[6]=="Existing"){
                     cout<<"You are updating the data of "<<parts[1]<<"."<<endl;
                     flag=1;
                     break;
@@ -925,45 +944,39 @@ public:
             }
             file.close();
             if(flag==0) {cout<<"You entered an invalid id number.\n";return Update();}
-            cout<<"Which attribute of "<<parts[1]<<" do you want to update?\n1.Name\t2.Password\t3.Fine_Due\t4.Record\n";
+            cout<<"Which attribute of "<<parts[1]<<" do you want to update?\n1.Fine_Due\t2.Record\n";
             string b;
             cin>>b;
             int change=0;
             if(b=="1") {
-                cout<<"Enter the new name for this person.\n";
-                string s1;
-                cin>>s1;
-                change=1;
-                parts[1]=s1;
-            }
-            else if(b=="2"){
-                cout<<"Enter the new password for this person(minimum 4 letters).\n";
-                string s2;
-                cin>>s2;
-                if(s2.size()<4){
-                    cout<<"Length should be gretaer than or equal to 4.\n";
-                    return Update();
-                }
-                change=1;
-                parts[2]=s2;
-            }
-            else if(b=="3"){
                 cout<<"Enter the new fine dues for this person.\n";
                 string s1;
                 cin>>s1;
-                if(is_number(s1)==0){
-                    cout<<"The fine due should consist of only numbers.\n";
+                if(is_number(s1)==0 || stoi(s1)<0){
+                    cout<<"The fine due should consist of only positive numbers.\n";
+                    return Update();
+                }
+                else if(stoi(s1)>50000){
+                    cout<<"The fine dues cannot exceed Rs.50000.\n";
                     return Update();
                 }
                 change=1;
                 parts[3]=s1;
             }
-            else if(b=="4"){
+            else if(b=="2"){
                 cout<<"Enter the new record number for this person.\n";
                 string s1;
                 cin>>s1;
                 if(is_number(s)==0){
                     cout<<"The record should consist of only numbers.\n";
+                    return Update();
+                }
+                else if(stoi(s1)<0){
+                    cout<<"Record can't be negative.\n";
+                    return Update();
+                }
+                else if(stoi(s1)<10){
+                    cout<<"You cannot set the record greater than 20.\n";
                     return Update();
                 }
                 change=1;
@@ -972,7 +985,7 @@ public:
             else {cout<<"Not a valid option.\n";return Update();}
             if(change==1){
                 flag=2;
-                string new_data=s+","+parts[1]+","+parts[2]+","+parts[3]+","+parts[4]+","+parts[5];
+                string new_data=s+","+parts[1]+","+parts[2]+","+parts[3]+","+parts[4]+","+parts[5]+",Existing";
                 update_record(filename,s,new_data);
             }
         }
@@ -1072,7 +1085,7 @@ public:
                 cout<<"Enter you new Name.\n";
                 string name;
                 cin>>name;
-                new_data=Id+","+name+","+password+","+mobile;
+                new_data=to_string(Id)+","+name+","+password+","+mobile;
             }
             else if(b=="2"){
                 cout<<"Enter you new password(minimum 4 letters).\n";
@@ -1082,7 +1095,7 @@ public:
                     cout<<"Your password is less than 4 letters.\n";
                     return Update_Profile();
                 }
-                new_data=Id+","+Name+","+pass+","+mobile;
+                new_data=to_string(Id)+","+Name+","+pass+","+mobile;
             }
             else if(b=="3"){
                 cout<<"Enter you new mobile number(of 10 digits).\n";
@@ -1092,7 +1105,7 @@ public:
                     cout<<"Invalid mobile number.\n";
                     return Update_Profile();
                 }
-                new_data=Id+","+Name+","+password+","+pass;
+                new_data=to_string(Id)+","+Name+","+password+","+pass;
             }
             else {
                 cout<<"Not a valid option.\n";
