@@ -138,15 +138,13 @@ int daysBetweenDates(string date1, string date2)
 
 	// Parse the first date into seconds
 	ss >> year >> hyphen >> month >> hyphen >> day;
-	struct tm starttm = { 0, 0, 0, day,
-						month - 1, year - 1900 };
+	struct tm starttm = { 0, 0, 0, day,month - 1, year - 1900 };
 	time_t start = mktime(&starttm);
 
 	// Parse the second date into seconds
 	ss >> hyphen >> year >> hyphen
 		>> month >> hyphen >> day;
-	struct tm endtm = { 0, 0, 0, day,
-						month - 1, year - 1900 };
+	struct tm endtm = { 0, 0, 0, day,month - 1, year - 1900 };
 	time_t end = mktime(&endtm);
 
 	// Find out the difference and divide it
